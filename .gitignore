@@ -10,3 +10,4 @@ __pycache__/
 *.pyo
 *.egg-info/
 scheduler.db
+codex.md
