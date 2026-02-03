@@ -1,4 +1,6 @@
 .agents
+.plans
+.prompt
 .codex
 .worktrees
 .venv
