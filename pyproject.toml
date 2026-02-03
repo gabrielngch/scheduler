@@ -3,14 +3,19 @@ name = "scheduler"
 version = "0.1.0"
 description = "Cloud service that runs Python functions on a scheduler"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
   { name = "Scheduler" }
 ]
 dependencies = [
   "rich>=13.7.0",
+  "tomli>=2.0.1; python_version < \"3.11\"",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project.scripts]
 scheduler = "scheduler.cli:main"

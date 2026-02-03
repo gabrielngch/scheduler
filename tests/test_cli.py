@@ -14,10 +14,10 @@ def test_module_main_exposes_main() -> None:
     assert callable(module.main)
 
 
-def test_parser_accepts_config_after_subcommand(tmp_path):
+def test_parser_accepts_global_config_before_subcommand(tmp_path):
     parser = build_parser()
     config_path = tmp_path / "scheduler.toml"
-    args = parser.parse_args(["scan", "--config", str(config_path)])
+    args = parser.parse_args(["--config", str(config_path), "scan"])
     assert args.config == config_path
 
 
@@ -49,12 +49,12 @@ def test_scan_command_prints_discovered_count(tmp_path, capsys) -> None:
 
     from scheduler.cli import main
 
-    main(["scan", "--config", str(config_path)])
+    main(["--config", str(config_path), "scan"])
     captured = capsys.readouterr()
     assert "discovered 1 scheduled function" in captured.out
 
 
-def test_global_config_flag_after_subcommand(tmp_path, capsys):
+def test_global_config_flag_before_subcommand(tmp_path, capsys):
     tasks_dir = tmp_path / "tasks"
     tasks_dir.mkdir()
     module_path = tasks_dir / "sample.py"
@@ -82,6 +82,6 @@ def test_global_config_flag_after_subcommand(tmp_path, capsys):
 
     from scheduler.cli import main
 
-    main(["run", "--config", str(config_path), "--once"])
+    main(["--config", str(config_path), "run", "--once"])
     captured = capsys.readouterr()
     assert "discovered 1 scheduled function" in captured.out

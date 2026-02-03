@@ -26,12 +26,6 @@ def build_parser() -> argparse.ArgumentParser:
         ("tui", "Launch the TUI"),
     ):
         subparser = subparsers.add_parser(name, help=help_text)
-        subparser.add_argument(
-            "--config",
-            type=Path,
-            default=Path("scheduler.toml"),
-            help="Path to scheduler TOML config",
-        )
         if name == "run":
             subparser.add_argument(
                 "--once",

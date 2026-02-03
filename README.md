@@ -60,13 +60,13 @@ If you use the default docker-compose setup, everything under your current worki
 If you're using Docker (recommended for local dev with the bind mount), run:
 
 ```bash
-sudo docker run --rm -v "$PWD:/host" scheduler:local run --config /host/examples/scheduler.toml
+sudo docker run --rm -v "$PWD:/host" scheduler:local --config /host/examples/scheduler.toml run
 ```
 
 If you've installed the package locally (for example `pip install -e .`), you can run:
 
 ```bash
-scheduler run --config /path/to/scheduler.toml
+scheduler --config /path/to/scheduler.toml run
 ```
 
 This will scan paths, then run due functions in a loop. On startup it logs how many functions were discovered.
@@ -83,13 +83,13 @@ The TUI reads the SQLite database and shows:
 Run it in another terminal. Docker:
 
 ```bash
-sudo docker run --rm -v "$PWD:/host" scheduler:local tui --config /host/examples/scheduler.toml
+sudo docker run --rm -v "$PWD:/host" scheduler:local --config /host/examples/scheduler.toml tui
 ```
 
 If installed locally:
 
 ```bash
-scheduler tui --config /path/to/scheduler.toml
+scheduler --config /path/to/scheduler.toml tui
 ```
 
 If no functions have been discovered yet, the TUI shows a clear empty-state message.
