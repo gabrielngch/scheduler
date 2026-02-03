@@ -1,2 +1,77 @@
 # scheduler
-Cloud service that runs anything Python on a scheduler
+
+A lightweight scheduler service that discovers Python functions in configured folders, runs them on a `datetime.timedelta` interval, and stores run history in SQLite. It ships with a simple TUI to monitor schedules and recent runs.
+
+## Use case
+
+Use this when you have Python functions (in your app or utility folders) that must run on a fixed interval and you want a self-contained service you can run alongside your app on a VM or container. You decorate functions with `@schedule(timedelta(...))`, point the scheduler at the folders, and it handles discovery and execution.
+
+## Quick start
+
+1. Create a config file (`scheduler.toml`) with the folders you want scanned.
+2. Add the decorator to your functions.
+3. Run the scheduler and optionally open the TUI.
+
+## Configuration
+
+The scheduler reads a TOML config file. By default it looks for `scheduler.toml`, or you can pass `--config`.
+
+Example (`scheduler.toml`):
+
+```toml
+scan_paths = ["/srv/myapp/tasks", "/srv/other_folder"]
+scan_interval_seconds = 60
+runner_poll_seconds = 5
+db_path = "/srv/scheduler/scheduler.db"
+tui_refresh_seconds = 2
+```
+
+- `scan_paths`: list of folders to scan recursively for `.py` files.
+- `scan_interval_seconds`: how often to rescan for new decorated functions.
+- `runner_poll_seconds`: how often to check for due jobs.
+- `db_path`: SQLite database file path.
+- `tui_refresh_seconds`: TUI refresh interval.
+
+### Pointing to folders
+
+Put any scheduled functions under one of the configured `scan_paths`. The scanner walks subfolders. Example function:
+
+```python
+from datetime import timedelta
+from scheduler.decorators import schedule
+
+@schedule(timedelta(minutes=5))
+def refresh_cache():
+    print("refreshing cache")
+```
+
+## Running the scheduler
+
+```bash
+scheduler run --config /path/to/scheduler.toml
+```
+
+This will scan paths, then run due functions in a loop. On startup it logs how many functions were discovered.
+
+## Using the TUI
+
+The TUI reads the SQLite database and shows:
+- last scan time
+- number of scheduled functions
+- runs and failures in the last 24h
+- next run time per function
+- recent run history
+
+Run it in another terminal:
+
+```bash
+scheduler tui --config /path/to/scheduler.toml
+```
+
+If no functions have been discovered yet, the TUI shows a clear empty-state message.
+
+## Notes
+
+- The scheduler runs functions in-process; if a function blocks, it will delay subsequent runs.
+- SQLite is the single source of truth for schedules and run logs.
+- Run logs and discovery errors are stored in the database for inspection in the TUI.
