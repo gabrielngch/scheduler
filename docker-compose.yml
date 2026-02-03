@@ -1,0 +1,7 @@
+services:
+  scheduler:
+    build: .
+    image: scheduler:local
+    volumes:
+      - ./examples:/app/examples
+      - ./scheduler.db:/app/scheduler.db
