@@ -11,16 +11,20 @@ The goal is to deliver a Dockerized Python service that discovers scheduled func
 ## Progress
 
 - [x] (2026-02-03 00:00Z) Drafted initial ExecPlan for the scheduler service and TUI.
-- [ ] Create baseline Python package layout, CLI entry point, and configuration loader.
-- [ ] Implement schedule decorator metadata and scanning logic for configured folders.
+- [x] (2026-02-03 00:35Z) Created baseline Python package layout, CLI entry point, and configuration loader.
+- [x] (2026-02-03 00:35Z) Implemented schedule decorator metadata and scanning logic for configured folders (decorator only so far).
 - [ ] Implement SQLite schema, runner loop, and run logging.
-- [ ] Implement TUI for monitoring schedules and run logs.
-- [ ] Add Dockerfile, sample config, and example scheduled tasks with validation steps.
-- [ ] Write and run tests that demonstrate behavior before and after changes.
+- [x] (2026-02-03 00:55Z) Implemented TUI for monitoring schedules and run logs.
+- [x] (2026-02-03 01:20Z) Added Dockerfile, sample config, and example scheduled tasks with validation steps.
+- [x] (2026-02-03 01:20Z) Wrote and ran tests that demonstrate behavior before and after changes.
 
 ## Surprises & Discoveries
 
-None yet.
+- Observation: Initial tests failed because the `src/` package path was not on `sys.path` during pytest collection.
+  Evidence: `ModuleNotFoundError: No module named 'scheduler'` during `uv run --extra dev pytest -q`.
+- Observation: `fetch_due_functions` returned no rows when `now_epoch=0` because new schedules set `next_run_at` using the current time.
+  Evidence: `assert len(due) == 1` failed in `tests/test_db.py` until the test used a future epoch.
+
 
 ## Decision Log
 
@@ -104,6 +108,32 @@ All steps are safe to repeat. The scanner and runner can be restarted without da
 
 Include small, focused transcripts and key excerpts in this section as the implementation proceeds. For example, keep a short example of the TUI output or a sample run log entry to show the system is working.
 
+Recent test run:
+
+    $ uv run --extra dev pytest -q
+    .............                                                            [100%]
+
+Example scan run:
+
+    $ UV_CACHE_DIR=/tmp/uv-cache PYTHONPATH=src uv run --extra dev python -m scheduler scan --config examples/scheduler.toml
+    INFO: discovered 1 scheduled function(s)
+
 ## Interfaces and Dependencies
 
 Use Python 3.11 for `tomllib` and `datetime.timedelta`. Use `rich` for the TUI rendering. Provide a CLI entry point named `scheduler` via `pyproject.toml` so the following interfaces exist: `scheduler run`, `scheduler scan`, and `scheduler tui`. Define a decorator `scheduler.decorators.schedule(interval: datetime.timedelta)` that attaches `__scheduler_interval_seconds__` to functions. Define database helper functions in `scheduler.db` to initialize schema, upsert scheduled functions, and insert run logs. Keep the SQLite schema stable and explicitly versioned in code so migrations are idempotent.
+
+Plan Update Notes
+
+- 2026-02-03: Marked initial scaffolding, config loader, and decorator tasks complete; added test run evidence and first discovery about import path during pytest.
+
+Plan Update Notes
+
+- 2026-02-03: Adjusted due-function tests to use a future epoch and set scanner qualname to file stem for stable display in logs/TUI.
+
+Plan Update Notes
+
+- 2026-02-03: Added TUI summary formatting and render loop with rich tables; added TUI summary test and verified full test suite.
+
+Plan Update Notes
+
+- 2026-02-03: Added Dockerfile, example config and tasks, CLI scan logging, and validation transcript for example scan; updated tests and CLI parsing to allow --config after subcommand.
