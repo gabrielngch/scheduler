@@ -57,6 +57,14 @@ If you use the default docker-compose setup, everything under your current worki
 
 ## Running the scheduler
 
+If you're using Docker (recommended for local dev with the bind mount), run:
+
+```bash
+sudo docker run --rm -v "$PWD:/host" scheduler:local run --config /host/examples/scheduler.toml
+```
+
+If you've installed the package locally (for example `pip install -e .`), you can run:
+
 ```bash
 scheduler run --config /path/to/scheduler.toml
 ```
@@ -72,7 +80,13 @@ The TUI reads the SQLite database and shows:
 - next run time per function
 - recent run history
 
-Run it in another terminal:
+Run it in another terminal. Docker:
+
+```bash
+sudo docker run --rm -v "$PWD:/host" scheduler:local tui --config /host/examples/scheduler.toml
+```
+
+If installed locally:
 
 ```bash
 scheduler tui --config /path/to/scheduler.toml
