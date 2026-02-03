@@ -2,6 +2,7 @@ services:
   scheduler:
     build: .
     image: scheduler:local
+    working_dir: /host
     volumes:
-      - ./examples:/app/examples
-      - ./scheduler.db:/app/scheduler.db
+      - ./:/host
+    command: ["run", "--config", "/host/examples/scheduler.toml"]

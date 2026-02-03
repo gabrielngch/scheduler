@@ -1,5 +1,5 @@
-scan_paths = ["examples/tasks"]
+scan_paths = ["/host"]
 scan_interval_seconds = 60
 runner_poll_seconds = 5
-db_path = "scheduler.db"
+db_path = "/host/scheduler.db"
 tui_refresh_seconds = 2

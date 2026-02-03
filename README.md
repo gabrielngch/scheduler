@@ -6,11 +6,19 @@ A lightweight scheduler service that discovers Python functions in configured fo
 
 Use this when you have Python functions (in your app or utility folders) that must run on a fixed interval and you want a self-contained service you can run alongside your app on a VM or container. You decorate functions with `@schedule(timedelta(...))`, point the scheduler at the folders, and it handles discovery and execution.
 
-## Quick start
+## Quick start (local dev)
 
-1. Create a config file (`scheduler.toml`) with the folders you want scanned.
-2. Add the decorator to your functions.
-3. Run the scheduler and optionally open the TUI.
+For local development, the default docker-compose setup bind-mounts your current directory to `/host` inside the container so the scheduler can scan your host files without rebuilds.
+
+From the directory that contains your projects (for example, your home directory that contains `scheduler`, `data pipeline app`, and `models`):
+
+```bash
+cd ~
+cd scheduler
+sudo docker compose up --build
+```
+
+The default config scans `/host`, which is your current working directory on the host.
 
 ## Configuration
 
@@ -19,10 +27,10 @@ The scheduler reads a TOML config file. By default it looks for `scheduler.toml`
 Example (`scheduler.toml`):
 
 ```toml
-scan_paths = ["/srv/myapp/tasks", "/srv/other_folder"]
+scan_paths = ["/host"]
 scan_interval_seconds = 60
 runner_poll_seconds = 5
-db_path = "/srv/scheduler/scheduler.db"
+db_path = "/host/scheduler.db"
 tui_refresh_seconds = 2
 ```
 
@@ -44,6 +52,8 @@ from scheduler.decorators import schedule
 def refresh_cache():
     print("refreshing cache")
 ```
+
+If you use the default docker-compose setup, everything under your current working directory is visible inside the container at `/host`, and the example config already scans `/host`.
 
 ## Running the scheduler
 
@@ -75,3 +85,4 @@ If no functions have been discovered yet, the TUI shows a clear empty-state mess
 - The scheduler runs functions in-process; if a function blocks, it will delay subsequent runs.
 - SQLite is the single source of truth for schedules and run logs.
 - Run logs and discovery errors are stored in the database for inspection in the TUI.
+- For production, mount only the specific directories you want scanned instead of `/host`.
