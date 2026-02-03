@@ -1,7 +1,5 @@
 .agents
 .codex
-.plan
-.prompts
 .worktrees
 .venv
 __pycache__/
