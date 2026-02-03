@@ -7,6 +7,17 @@ import sys
 
 from scheduler.db import record_scan_error, upsert_scheduled_function
 
+_SKIP_DIR_NAMES = {
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    "tests",
+    ".worktrees",
+}
+
 
 def _load_module_from_path(path: Path):
     module_name = f"scheduled_{path.stem}_{abs(hash(path))}"
@@ -23,6 +34,8 @@ def scan_paths(conn, scan_paths: list[Path]) -> int:
     discovered = 0
     for root in scan_paths:
         for file_path in root.rglob("*.py"):
+            if any(part in _SKIP_DIR_NAMES for part in file_path.parts):
+                continue
             try:
                 module = _load_module_from_path(file_path)
                 for _, func in inspect.getmembers(module, inspect.isfunction):
@@ -37,6 +50,13 @@ def scan_paths(conn, scan_paths: list[Path]) -> int:
                         interval_seconds=int(interval),
                     )
                     discovered += 1
+            except SystemExit as exc:
+                record_scan_error(
+                    conn,
+                    file_path=str(file_path),
+                    error_type=type(exc).__name__,
+                    error_message=str(exc),
+                )
             except Exception as exc:
                 record_scan_error(
                     conn,
