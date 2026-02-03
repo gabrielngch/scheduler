@@ -2,6 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED=1
+
 COPY pyproject.toml README.md /app/
 COPY src /app/src
 COPY examples /app/examples
